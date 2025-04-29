@@ -101,7 +101,9 @@ if __name__ == '__main__':
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
     # Load pretrained model
+    print(config.SMPL_MEAN_PARAMS)
     model = hmr(config.SMPL_MEAN_PARAMS).to(device)
+    print(args.checkpoint)
     checkpoint = torch.load(args.checkpoint)
     model.load_state_dict(checkpoint['model'], strict=False)
 

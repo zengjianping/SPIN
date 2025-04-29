@@ -6,7 +6,7 @@ Things you need to change: *_ROOT that indicate the path to each dataset
 from os.path import join
 
 H36M_ROOT = ''
-LSP_ROOT = ''
+LSP_ROOT = '/data/Datasets/PoseDataset/LSP'
 LSP_ORIGINAL_ROOT = ''
 LSPET_ROOT = ''
 MPII_ROOT = ''
@@ -31,7 +31,7 @@ DATASET_FILES = [ {'h36m-p1': join(DATASET_NPZ_PATH, 'h36m_valid_protocol1.npz')
                    '3dpw': join(DATASET_NPZ_PATH, '3dpw_test.npz'),
                   },
 
-                  {'h36m': join(DATASET_NPZ_PATH, 'h36m_train.npz'),
+                  {'h36m': join(DATASET_NPZ_PATH, 'h36m_mosh_train.npz'),
                    'lsp-orig': join(DATASET_NPZ_PATH, 'lsp_dataset_original_train.npz'),
                    'mpii': join(DATASET_NPZ_PATH, 'mpii_train.npz'),
                    'coco': join(DATASET_NPZ_PATH, 'coco_2014_train.npz'),

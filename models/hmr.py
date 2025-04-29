@@ -158,7 +158,8 @@ def hmr(smpl_mean_params, pretrained=True, **kwargs):
     """
     model = HMR(Bottleneck, [3, 4, 6, 3],  smpl_mean_params, **kwargs)
     if pretrained:
-        resnet_imagenet = resnet.resnet50(pretrained=True)
+        #resnet_imagenet = resnet.resnet50(pretrained=True)
+        resnet_imagenet = resnet.resnet50()
         model.load_state_dict(resnet_imagenet.state_dict(),strict=False)
     return model
 

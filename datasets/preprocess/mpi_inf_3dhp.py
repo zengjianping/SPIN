@@ -25,6 +25,11 @@ def read_calibration(calib_file, vid_list):
     return Ks, Rs, Ts
     
 def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, extract_img=False, fits_3d=None):
+    out_file = os.path.join(out_path, 'mpi_inf_3dhp_train.npz')
+
+    if extract_img:
+        out_data = np.load(out_file)
+        imgnames = set(out_data['imgname'])
 
     joints17_idx = [4, 18, 19, 20, 23, 24, 25, 3, 5, 6, 7, 9, 10, 11, 14, 15, 16]
 
@@ -39,8 +44,12 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
 
     counter = 0
 
-    for user_i in user_list:
-        for seq_i in seq_list:
+    for ui, user_i in enumerate(user_list):
+        print(f'Processing user {ui+1}/{len(user_list)}...')
+
+        for si, seq_i in enumerate(seq_list):
+            print(f'Processing seq {si+1}/{len(seq_list)}...')
+            
             seq_path = os.path.join(dataset_path,
                                     'S' + str(user_i),
                                     'Seq' + str(seq_i))
@@ -53,6 +62,7 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
             #Ks, Rs, Ts = read_calibration(calib_file, vid_list)
 
             for j, vid_i in enumerate(vid_list):
+                print(f'Processing video {j+1}/{len(vid_list)}...')
 
                 # image folder
                 imgs_path = os.path.join(seq_path,    
@@ -84,7 +94,9 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
                         imgname = os.path.join(imgs_path,
                             'frame_%06d.jpg' % frame)
                         # save image
-                        cv2.imwrite(imgname, image)
+                        imgpath = imgname[len(dataset_path)+1:]
+                        if imgpath in imgnames:
+                            cv2.imwrite(imgname, image)
 
                 # per frame
                 #cam_aa = cv2.Rodrigues(Rs[j])[0].T[0]
@@ -138,13 +150,12 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
                     Ss_.append(S)
                     openposes_.append(openpose)
 
-    if len(imgnames_) == 0:
+    if extract_img or len(imgnames_) == 0:
         return
         
     # store the data struct
     if not os.path.isdir(out_path):
         os.makedirs(out_path)
-    out_file = os.path.join(out_path, 'mpi_inf_3dhp_train.npz')
     if fits_3d is not None:
         fits_3d = np.load(fits_3d)
         np.savez(out_file, imgname=imgnames_,

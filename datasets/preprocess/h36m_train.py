@@ -23,8 +23,8 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
     user_list = [1, 5, 6, 7, 8]
 
     # go over each user
-    for user_i in user_list:
-        print(f'Processing user {user_i}/{len(user_list)}...')
+    for ui, user_i in enumerate(user_list):
+        print(f'Processing user {ui+1}/{len(user_list)}...')
 
         user_name = 'S%d' % user_i
         # path with GT bounding boxes

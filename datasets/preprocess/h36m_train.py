@@ -24,9 +24,11 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
 
     # go over each user
     for user_i in user_list:
+        print(f'Processing user {user_i}/{len(user_list)}...')
+
         user_name = 'S%d' % user_i
         # path with GT bounding boxes
-        bbox_path = os.path.join(dataset_path, user_name, 'MySegmentsMat', 'ground_truth_bb')
+        bbox_path = os.path.join(dataset_path, user_name, 'MySegmentsMat', 'ground_truth_bs')
         # path with GT 3D pose
         pose_path = os.path.join(dataset_path, user_name, 'MyPoseFeatures', 'D3_Positions_mono')
         # path with GT 2D pose
@@ -37,7 +39,8 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
         # go over all the sequences of each user
         seq_list = glob.glob(os.path.join(pose_path, '*.cdf'))
         seq_list.sort()
-        for seq_i in seq_list:
+        for si, seq_i in enumerate(seq_list):
+            print(f'Processing seq {si+1}/{len(seq_list)}...')
 
             # sequence info
             seq_name = seq_i.split('/')[-1]
@@ -66,6 +69,8 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
 
             # go over each frame of the sequence
             for frame_i in range(poses_3d.shape[0]):
+                print(f'Processing frame {frame_i}/{poses_3d.shape[0]}...', end='\r')
+
                 # read video frame
                 if extract_img:
                     success, image = vidcap.read()
@@ -73,17 +78,19 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
                         break
 
                 # check if you can keep this frame
+                protocol = 1
                 if frame_i % 5 == 0 and (protocol == 1 or camera == '60457274'):
                     # image name
                     imgname = '%s_%s.%s_%06d.jpg' % (user_name, action, camera, frame_i+1)
                     
-                    # save image
+                    # save imageprotocol
                     if extract_img:
                         img_out = os.path.join(imgs_path, imgname)
                         cv2.imwrite(img_out, image)
 
                     # read GT bounding box
-                    mask = bbox_h5py[bbox_h5py['Masks'][frame_i,0]].value.T
+                    #mask = bbox_h5py[bbox_h5py['Masks'][frame_i,0]].value.T
+                    mask = np.array(bbox_h5py[bbox_h5py['Masks'][frame_i,0]], dtype=np.uint8).T
                     ys, xs = np.where(mask==1)
                     bbox = np.array([np.min(xs), np.min(ys), np.max(xs)+1, np.max(ys)+1])
                     center = [(bbox[2]+bbox[0])/2, (bbox[3]+bbox[1])/2]
@@ -91,7 +98,7 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
 
                     # read GT 3D pose
                     partall = np.reshape(poses_2d[frame_i,:], [-1,2])
-                    part17 = partalll[h36m_idx]
+                    part17 = partall[h36m_idx]
                     part = np.zeros([24,3])
                     part[global_idx, :2] = part17
                     part[global_idx, 2] = 1
@@ -107,6 +114,8 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
                     # read openpose detections
                     json_file = os.path.join(openpose_path, 'coco',
                         imgname.replace('.jpg', '_keypoints.json'))
+                    if not os.path.isfile(json_file):
+                        continue
                     openpose = read_openpose(json_file, part, 'h36m')
 
                     # store data
@@ -116,6 +125,9 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
                     parts_.append(part)
                     Ss_.append(S24)
                     openposes_.append(openpose)
+
+    if len(imgnames_) == 0:
+        return
 
     # store the data struct
     if not os.path.isdir(out_path):

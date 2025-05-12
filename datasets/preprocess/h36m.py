@@ -21,9 +21,11 @@ def h36m_extract(dataset_path, out_path, protocol=1, extract_img=False):
 
     # go over each user
     for user_i in user_list:
+        print(f'Processing user {user_i}/{len(user_list)}...')
+
         user_name = 'S%d' % user_i
         # path with GT bounding boxes
-        bbox_path = os.path.join(dataset_path, user_name, 'MySegmentsMat', 'ground_truth_bb')
+        bbox_path = os.path.join(dataset_path, user_name, 'MySegmentsMat', 'ground_truth_bs')
         # path with GT 3D pose
         pose_path = os.path.join(dataset_path, user_name, 'MyPoseFeatures', 'D3_Positions_mono')
         # path with videos
@@ -32,7 +34,8 @@ def h36m_extract(dataset_path, out_path, protocol=1, extract_img=False):
         # go over all the sequences of each user
         seq_list = glob.glob(os.path.join(pose_path, '*.cdf'))
         seq_list.sort()
-        for seq_i in seq_list:
+        for si, seq_i in enumerate(seq_list):
+            print(f'Processing seq {si+1}/{len(seq_list)}...')
 
             # sequence info
             seq_name = seq_i.split('/')[-1]
@@ -53,11 +56,14 @@ def h36m_extract(dataset_path, out_path, protocol=1, extract_img=False):
             if extract_img:
                 vid_file = os.path.join(vid_path, seq_name.replace('cdf', 'mp4'))
                 imgs_path = os.path.join(dataset_path, 'images')
+                os.makedirs(imgs_path, exist_ok=True)
                 vidcap = cv2.VideoCapture(vid_file)
                 success, image = vidcap.read()
 
             # go over each frame of the sequence
             for frame_i in range(poses_3d.shape[0]):
+                print(f'Processing frame {frame_i}/{poses_3d.shape[0]}...', end='\r')
+
                 # read video frame
                 if extract_img:
                     success, image = vidcap.read()
@@ -75,7 +81,12 @@ def h36m_extract(dataset_path, out_path, protocol=1, extract_img=False):
                         cv2.imwrite(img_out, image)
 
                     # read GT bounding box
-                    mask = bbox_h5py[bbox_h5py['Masks'][frame_i,0]].value.T
+                    #mask = bbox_h5py[bbox_h5py['Masks'][frame_i,0]].value.T
+                    mask = np.array(bbox_h5py[bbox_h5py['Masks'][frame_i,0]], dtype=np.uint8).T
+                    #print(image.shape, mask.shape)
+                    #cv2.imshow('image', image)
+                    #cv2.imshow('mask', (mask * 255))
+                    #cv2.waitKey(5)
                     ys, xs = np.where(mask==1)
                     bbox = np.array([np.min(xs), np.min(ys), np.max(xs)+1, np.max(ys)+1])
                     center = [(bbox[2]+bbox[0])/2, (bbox[3]+bbox[1])/2]

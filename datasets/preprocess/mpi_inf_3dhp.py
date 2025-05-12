@@ -49,8 +49,8 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
             annot2 = sio.loadmat(annot_file)['annot2']
             annot3 = sio.loadmat(annot_file)['annot3']
             # calibration file and camera parameters
-            calib_file = os.path.join(seq_path, 'camera.calibration')
-            Ks, Rs, Ts = read_calibration(calib_file, vid_list)
+            #calib_file = os.path.join(seq_path, 'camera.calibration')
+            #Ks, Rs, Ts = read_calibration(calib_file, vid_list)
 
             for j, vid_i in enumerate(vid_list):
 
@@ -87,7 +87,7 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
                         cv2.imwrite(imgname, image)
 
                 # per frame
-                cam_aa = cv2.Rodrigues(Rs[j])[0].T[0]
+                #cam_aa = cv2.Rodrigues(Rs[j])[0].T[0]
                 pattern = os.path.join(imgs_path, '*.jpg')
                 img_list = glob.glob(pattern)
                 for i, img_i in enumerate(img_list):
@@ -118,6 +118,8 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
                     part[joints_idx] = np.hstack([joints, np.ones([17,1])])
                     json_file = os.path.join(openpose_path, 'mpi_inf_3dhp',
                         img_view.replace('.jpg', '_keypoints.json'))
+                    if not os.path.isfile(json_file):
+                        continue
                     openpose = read_openpose(json_file, part, 'mpi_inf_3dhp')
 
                     S = np.zeros([24,4])
@@ -135,7 +137,10 @@ def train_data(dataset_path, openpose_path, out_path, joints_idx, scaleFactor, e
                     parts_.append(part)
                     Ss_.append(S)
                     openposes_.append(openpose)
-                       
+
+    if len(imgnames_) == 0:
+        return
+        
     # store the data struct
     if not os.path.isdir(out_path):
         os.makedirs(out_path)

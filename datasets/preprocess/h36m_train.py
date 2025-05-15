@@ -112,7 +112,7 @@ def h36m_train_extract(dataset_path, openpose_path, out_path, extract_img=False)
                     S24[global_idx, 3] = 1
                     
                     # read openpose detections
-                    json_file = os.path.join(openpose_path, 'coco',
+                    json_file = os.path.join(openpose_path, 'h36m',
                         imgname.replace('.jpg', '_keypoints.json'))
                     if not os.path.isfile(json_file):
                         continue

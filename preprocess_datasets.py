@@ -5,7 +5,7 @@ It is recommended to first read datasets/preprocess/README.md
 """
 import argparse
 import config as cfg
-from datasets.preprocess import h36m_extract,\
+from datasets.preprocess import h36m_train_extract, h36m_extract,\
                                 pw3d_extract, \
                                 mpi_inf_3dhp_extract, \
                                 lsp_dataset_extract,\
@@ -26,8 +26,11 @@ if __name__ == '__main__':
     openpose_path = cfg.OPENPOSE_PATH
 
     if args.train_files:
+        # Human3.6M preprocessing (training set)
+        h36m_train_extract(cfg.H36M_ROOT, openpose_path, out_path, extract_img=True)
+
         # MPI-INF-3DHP dataset preprocessing (training set)
-        mpi_inf_3dhp_extract(cfg.MPI_INF_3DHP_ROOT, openpose_path, out_path, 'train', extract_img=True, static_fits=cfg.STATIC_FITS_DIR)
+        #mpi_inf_3dhp_extract(cfg.MPI_INF_3DHP_ROOT, openpose_path, out_path, 'train', extract_img=True, static_fits=cfg.STATIC_FITS_DIR)
 
         # LSP dataset original preprocessing (training set)
         #lsp_dataset_original_extract(cfg.LSP_ORIGINAL_ROOT, openpose_path, out_path)

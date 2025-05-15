@@ -21,7 +21,7 @@ DATASET_NPZ_PATH = 'data/dataset_extras'
 # Output folder to store the openpose detections
 # This is requires only in case you want to regenerate 
 # the .npz files with the annotations.
-OPENPOSE_PATH = 'datasets/openpose'
+OPENPOSE_PATH = 'data/openpose'
 
 # Path to test/train npz files
 DATASET_FILES = [ {'h36m-p1': join(DATASET_NPZ_PATH, 'h36m_valid_protocol1.npz'),

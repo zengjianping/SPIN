@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATASET=3dpw
+DATASET=h36m-p2
 
 python3 eval.py \
     --checkpoint=data/model_checkpoint.pt \

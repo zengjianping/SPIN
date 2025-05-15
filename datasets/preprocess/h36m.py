@@ -20,8 +20,8 @@ def h36m_extract(dataset_path, out_path, protocol=1, extract_img=False):
     user_list = [9, 11]
 
     # go over each user
-    for user_i in user_list:
-        print(f'Processing user {user_i}/{len(user_list)}...')
+    for ui, user_i in enumerate(user_list):
+        print(f'Processing user {ui+1}/{len(user_list)}...')
 
         user_name = 'S%d' % user_i
         # path with GT bounding boxes
